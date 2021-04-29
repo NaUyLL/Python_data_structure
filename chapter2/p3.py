@@ -167,7 +167,7 @@ class LCList:
         if self._rear is p:
             self._rear = None
         else:
-            self._rear = p.next
+            self._rear.next = p.next
         return p.elem
 
     def printall(self):
@@ -187,7 +187,7 @@ class DLNode(LNode):
         self.prev = prev
 
 
-class DLList(LList1):
+class DLList(LLlist1):
     def __init__(self):
         LLlist1.__init__(self)
 
@@ -226,7 +226,6 @@ class DLList(LList1):
         else:
             self._rear.next = None
         return e
-
 
 
 if __name__ == "__main__":
