@@ -2,7 +2,7 @@
 class QueueUnderflow(ValueError):
     pass
 
-class Queue():
+class SQueue():
     def __init__(self, init_len=8):
         self._len = init_len
         self._elems = [0] * init_len
