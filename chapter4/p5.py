@@ -2,8 +2,9 @@
 author: Luo ly
 '''
 from random import randint
-from .p2 import SQueue
-from .p4 import PrioQueue
+from p2 import SQueue
+from p4 import PrioQueue
+
 
 class Simulation:
     def __init__(self, duration):
@@ -25,6 +26,7 @@ class Simulation:
     def cur_time(self):
         return self._time
 
+
 class Event:
     def __init__(self, event_time, host):
         self._ctime = event_time
@@ -45,11 +47,12 @@ class Event:
     def run(self):
         pass
 
+
 class Customs:
     def __init__(self, gate_num, duration, arrive_interval, check_interval):
         self.simulation = Simulation(duration)
         self.waitline = SQueue()
-        self._duration = duration
+        self.duration = duration
         self.gates = [0] * gate_num
         self.total_wait_time = 0
         self.total_used_time = 0
@@ -110,16 +113,25 @@ class Customs:
             i += 1
         print(i, "cars are in waiting line.")
 
+
 class Car:
+    CAR_MEMBER = 0
     def __init__(self, arrive_time):
         self.time= arrive_time
+        self.member = self.get_member()
+
+    def get_member(self):
+        Car.CAR_MEMBER += 1
+        return Car.CAR_MEMBER
 
     def arrive_time(self):
         return self.time
 
-def event_log(time, name):
-    print("Event: " + name + ", happens at " + str(time))
+
+def event_log(time, name, car):
+    print("Event: car_" + str(car.member) + " " + name + ", happens at " + str(time))
     pass
+
 
 class Arrive(Event):
     def __init__(self, arrive_time, customs):
@@ -127,8 +139,46 @@ class Arrive(Event):
         customs.add_event(self)
 
     def run(self):
-        pass
+        time, customs = self.time(), self.host()
+
+        Arrive(time + randint(*customs.arrive_interval), customs)
+
+        car = Car(time)
+        event_log(time, "arrive", car)
+        if customs.has_queued_car():
+            customs.enqueue(car)
+            return
+        i = customs.find_gate()
+        if i is not None:
+            event_log(time, "check", car)
+            Leave(time + randint(*customs.check_interval), i, car, customs)
+        else:
+            customs.enqueue(car)
+
+
+class Leave(Event):
+    def __init__(self, leave_time, gate_num, car, customs):
+        Event.__init__(self, leave_time, customs)
+        self.car = car
+        self.gate_num = gate_num
+        customs.add_event(self)
+
+    def run(self):
+        time, customs = self.time(), self.host()
+        event_log(time, "leave", self.car)
+        customs.free_gate(self.gate_num)
+        customs.car_count_1()
+        customs.total_time_acc(time - self.car.arrive_time())
+        if customs.has_queued_car():
+            car = customs.next_car()
+            i = customs.find_gate()
+            event_log(time, "check", car)
+            customs.wait_time_acc(time - car.arrive_time())
+            Leave(time + randint(*customs.check_interval), self.gate_num, car, customs)
 
 
 if __name__ == "__main__":
-    pass
+    car_arrive_interval = (1, 2)
+    car_check_time = (3, 5)
+    cus = Customs(3, 480, car_arrive_interval, car_check_time)
+    cus.simulate()
