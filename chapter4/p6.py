@@ -60,9 +60,6 @@ def preorder_nonrec(t, proc):
             t = t.left
         t = s.pop()
 
-tree = BinTNode(1, BinTNode(3, BinTNode(5, BinTNode(0)), BinTNode(4, None, BinTNode(7))), BinTNode(8, None, BinTNode(9, BinTNode(6))))
-preorder(tree, lambda x: print(x, end=" "))
-preorder_nonrec(tree, lambda x: print(x, end=" "))
 
 def postorder_nonrec(t, proc):
     s = SStack()
@@ -102,3 +99,10 @@ class BinTree:
 
     def self_right(self, rightchild):
         self._root.right = rightchild
+
+
+if __name__ == "__main__":
+    tree = BinTNode(1, BinTNode(3, BinTNode(5, BinTNode(0)), BinTNode(4, None, BinTNode(7))),
+                    BinTNode(8, None, BinTNode(9, BinTNode(6))))
+    preorder(tree, lambda x: print(x, end=" "))
+    preorder_nonrec(tree, lambda x: print(x, end=" "))
